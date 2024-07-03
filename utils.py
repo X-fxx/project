@@ -11,12 +11,23 @@ from transformers import AutoTokenizer, AutoModel
 import os
 import pandas as pd
 import json
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm3-6b", trust_remote_code=True)
 model = AutoModel.from_pretrained("THUDM/chatglm3-6b", trust_remote_code=True).half().cuda()
 model = model.eval()
 def invoke_example_glm3(sys_prompt):
     response, history = model.chat(tokenizer, sys_prompt, temperature=0.3)
+    data = response.replace(' ', '').split('输出：')[-1]
+    data = data.split('示例结束')[0].replace('\n', '')
+    import pdb; pdb.set_trace()
+    # 如果data可以正确被解析为json，则执行下面的指令；如果报错，则重新生成
+    try:
+        data_dict = json.loads(data)
+    except:
+        response = invoke_example_glm3(sys_prompt)
+        data = response.replace(' ', '').split('输出：')[-1]
+        data = data.split('示例结束')[0].replace('\n', '')
+        data_dict = json.loads(data)
     return response
 
 def format_conversion(response):
