@@ -19,16 +19,15 @@ def invoke_example_glm3(sys_prompt):
     response, history = model.chat(tokenizer, sys_prompt, temperature=0.3)
     data = response.replace(' ', '').split('输出：')[-1]
     data = data.split('示例结束')[0].replace('\n', '')
-    import pdb; pdb.set_trace()
+    while True():
     # 如果data可以正确被解析为json，则执行下面的指令；如果报错，则重新生成
-    try:
-        data_dict = json.loads(data)
-    except:
-        response = invoke_example_glm3(sys_prompt)
-        data = response.replace(' ', '').split('输出：')[-1]
-        data = data.split('示例结束')[0].replace('\n', '')
-        data_dict = json.loads(data)
-    return response
+        try:
+            data_dict = json.loads(data)
+            return response
+        except:
+            print('生成错误，重新生成')
+            
+        
 
 def format_conversion(response):
     # import pdb; pdb.set_trace()
